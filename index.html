@@ -10,47 +10,48 @@
     <script src="highlight.min.js"></script>
     <script src="application.js"></script>
     <link rel="icon" type="image/png" href="https://euphoriadevelopment.uk/assets/img/euphoria.png" />
-	<script src="https://unpkg.com/@popperjs/core@2"></script>
-	<script src="https://unpkg.com/tippy.js@6"></script>
-	<link rel="stylesheet" href="https://unpkg.com/tippy.js@6/themes/dark.css" />
-	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
-	
+    <script src="https://unpkg.com/@popperjs/core@2"></script>
+    <script src="https://unpkg.com/tippy.js@6"></script>
+    <link rel="stylesheet" href="https://unpkg.com/tippy.js@6/themes/dark.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
     <meta name="robots" content="noindex,nofollow" />
 
-	<script type="text/javascript">
-		var app = null;
-		
-    	// Create regex pattern from extension map
-    	var extensions = Object.keys(haste.extensionMap).join('|');
-    	var extensionRegex = new RegExp('\.(' + extensions + ')$');
+    <script type="text/javascript">
+      var app = null;
     
-    	// Handle pops with new regex
-    	var handlePop = function(evt) {
-    	    var path = evt.target.location.pathname;
-    	    var key = path.substring(1).replace(extensionRegex, '');
-        
-    	    if (!key) {
-    	        app.newDocument(true);
-    	    } else {
-    	        app.loadDocument(key);
-    	    }
-    	};
-		// Set up the pop state to handle loads, skipping the first load
-		// to make chrome behave like others:
-		// http://code.google.com/p/chromium/issues/detail?id=63040
-		setTimeout(function() {
-			window.onpopstate = function(evt) {
-				try { handlePop(evt); } catch(err) { /* not loaded yet */ }
-			};
-		}, 1000);
-		// Construct app and load initial path
-		$(function() {
-			var baseUrl = window.location.href.split('/');
-			baseUrl = baseUrl.slice(0, baseUrl.length - 1).join('/') + '/';
-			app = new haste('Euphoria Paste', { discord: true, baseUrl: baseUrl });
-			handlePop({ target: window });
-		});
-	</script>
+      // Create regex pattern from extension map
+      var extensions = Object.keys(haste.extensionMap).join('|');
+      var extensionRegex = new RegExp('\.(' + extensions + ')$');
+  
+      // Handle pops with new regex
+      var handlePop = function(evt) {
+          var path = evt.target.location.pathname;
+          var key = path.substring(1).replace(extensionRegex, '');
+      
+          if (!key) {
+              app.newDocument(true);
+          } else {
+              app.loadDocument(key);
+          }
+      };
+  
+      // Set up the pop state to handle loads, skipping the first load
+      // to make chrome behave like others:
+      // http://code.google.com/p/chromium/issues/detail?id=63040
+      setTimeout(function() {
+          window.onpopstate = function(evt) {
+              try { handlePop(evt); } catch(err) { /* not loaded yet */ }
+          };
+      }, 1000);
+  
+      // Construct app and load initial path
+      $(function() {
+          var baseUrl = window.location.href.split('/');
+          baseUrl = baseUrl.slice(0, baseUrl.length - 1).join('/') + '/';
+          app = new haste('Euphoria Paste', { discord: true, baseUrl: baseUrl });
+          handlePop({ target: window });
+      });
+    </script>
   </head>
 
   <body>
@@ -78,70 +79,102 @@
     <pre id="box" style="display: none;" class="hljs" tabindex="0"><code></code></pre>
     <textarea spellcheck="false" style="display: none;"></textarea>
 
-	<!-- Add this after the textarea -->
-	<div id="stats-container">
-		<span id="line-count">Lines: 0</span>
-		<span id="word-count">Words: 0</span>
-		<span id="char-count">Characters: 0</span>
-  	</div>
+    <!-- Add this after the textarea -->
+    <div id="stats-container">
+      <span id="line-count">Lines: 0</span>
+      <span id="word-count">Words: 0</span>
+      <span id="char-count">Characters: 0</span>
+    </div>
 
-	<!-- Floating Action Buttons for Mobile -->
-	<div id="mobile-controls">
-		<button id="save-btn" class="fab save" data-tippy-content="Save"><i class="fa fa-save"></i></button>
-		<button id="new-btn" class="fab new" data-tippy-content="New Document"><i class="fa fa-file"></i></button>
-		<button id="duplicate-btn" class="fab duplicate" data-tippy-content="Duplicate"><i class="fa fa-copy"></i></button>
-		<button id="raw-btn" class="fab raw" data-tippy-content="View Raw"><i class="fa fa-file-alt"></i></button>
-		<button id="discord-btn" class="fab discord" data-tippy-content="Coming Soon"><i class="fa-brands fa-discord"></i></button>
-	</div>
-	
-	<script>
-		document.addEventListener('DOMContentLoaded', () => {
-			const buttons = document.querySelectorAll('#mobile-controls .fab');
-	
-			// Initialize Tippy.js tooltips
-			buttons.forEach((button) => {
-				tippy(button, {
-					content: button.getAttribute('data-tippy-content'),
-					theme: 'dark',
-					duration: [300, 200],
-					placement: 'left',
-					arrow: true,
-				});
-			});
-	
-			// Event listeners for mobile buttons
-			document.getElementById('save-btn').addEventListener('click', () => app.lockDocument());
-			document.getElementById('new-btn').addEventListener('click', () => app.newDocument(true));
-			document.getElementById('duplicate-btn').addEventListener('click', () => app.duplicateDocument());
-			document.getElementById('raw-btn').addEventListener('click', () => {
-				if (app.doc && app.doc.key) {
-					window.location.href = app.baseUrl + 'raw/' + app.doc.key;
-				} else {
-					console.warn('No document to view as raw.');
-				}
-			});
-			document.getElementById('discord-btn').addEventListener('click', () => {
-				window.open('https://discord.euphoriadevelopment.uk', '_blank');
-			});
+    <!-- Add file type selection -->
+    <div id="file-type-selection">
+      <label for="file-type">Select file type:</label>
+      <select id="file-type">
+        <option value="txt">Text (.txt)</option>
+        <option value="json">JSON (.json)</option>
+      </select>
+    </div>
 
-			const textarea = document.querySelector('textarea');
-    		const lineCount = document.getElementById('line-count');
-    		const wordCount = document.getElementById('word-count');
-    		const charCount = document.getElementById('char-count');
+    <!-- Floating Action Buttons for Mobile -->
+    <div id="mobile-controls">
+      <button id="save-btn" class="fab save" data-tippy-content="Save"><i class="fa fa-save"></i></button>
+      <button id="new-btn" class="fab new" data-tippy-content="New Document"><i class="fa fa-file"></i></button>
+      <button id="duplicate-btn" class="fab duplicate" data-tippy-content="Duplicate"><i class="fa fa-copy"></i></button>
+      <button id="raw-btn" class="fab raw" data-tippy-content="View Raw"><i class="fa fa-file-alt"></i></button>
+      <button id="discord-btn" class="fab discord" data-tippy-content="Coming Soon"><i class="fa-brands fa-discord"></i></button>
+    </div>
 
-    		function updateStats() {
-      			const text = textarea.value;
-      			const lines = text.split('\n').length;
-      			const words = text.trim().split(/\s+/).filter(word => word.length > 0).length;
-      			const chars = text.length;
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const saveBtn = document.getElementById('save-btn');
+        const fileTypeSelect = document.getElementById('file-type');
+        const textarea = document.querySelector('textarea');
 
-      			lineCount.textContent = `Lines: ${lines}`;
-      			wordCount.textContent = `Words: ${words}`;
-      			charCount.textContent = `Characters: ${chars}`;
-    		}
+        saveBtn.addEventListener('click', () => {
+          const text = textarea.value;
+          const fileType = fileTypeSelect.value;
+          let fileExtension, fileContent;
 
-    		textarea.addEventListener('input', updateStats);
-		});
-	</script>			
+          if (fileType === 'txt') {
+            fileExtension = '.txt';
+            fileContent = text;
+          } else if (fileType === 'json') {
+            fileExtension = '.json';
+            fileContent = JSON.stringify({ content: text });
+          }
+
+          const blob = new Blob([fileContent], { type: 'application/octet-stream' });
+          const link = document.createElement('a');
+          link.href = URL.createObjectURL(blob);
+          link.download = 'document' + fileExtension;
+          link.click();
+        });
+
+        const buttons = document.querySelectorAll('#mobile-controls .fab');
+
+        // Initialize Tippy.js tooltips
+        buttons.forEach((button) => {
+          tippy(button, {
+            content: button.getAttribute('data-tippy-content'),
+            theme: 'dark',
+            duration: [300, 200],
+            placement: 'left',
+            arrow: true,
+          });
+        });
+
+        // Event listeners for mobile buttons
+        document.getElementById('save-btn').addEventListener('click', () => app.lockDocument());
+        document.getElementById('new-btn').addEventListener('click', () => app.newDocument(true));
+        document.getElementById('duplicate-btn').addEventListener('click', () => app.duplicateDocument());
+        document.getElementById('raw-btn').addEventListener('click', () => {
+          if (app.doc && app.doc.key) {
+            window.location.href = app.baseUrl + 'raw/' + app.doc.key;
+          } else {
+            console.warn('No document to view as raw.');
+          }
+        });
+        document.getElementById('discord-btn').addEventListener('click', () => {
+          window.open('https://discord.euphoriadevelopment.uk', '_blank');
+        });
+
+        const lineCount = document.getElementById('line-count');
+        const wordCount = document.getElementById('word-count');
+        const charCount = document.getElementById('char-count');
+
+        function updateStats() {
+          const text = textarea.value;
+          const lines = text.split('\n').length;
+          const words = text.trim().split(/\s+/).filter(word => word.length > 0).length;
+          const chars = text.length;
+
+          lineCount.textContent = `Lines: ${lines}`;
+          wordCount.textContent = `Words: ${words}`;
+          charCount.textContent = `Characters: ${chars}`;
+        }
+
+        textarea.addEventListener('input', updateStats);
+      });
+    </script>
   </body>
 </html>
